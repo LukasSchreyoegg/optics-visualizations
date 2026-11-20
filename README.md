@@ -35,7 +35,7 @@ Single scattering only, no aerosols (so the setting sun gets orange, not deep re
 
 ## Fresnel equations and the Brewster angle
 
-![Light hitting glass at the Brewster angle](fresnel-brewster/preview.png)
+![Light hitting glass: a faint reflected ray and a bright transmitted ray](fresnel-brewster/preview.png)
 
 **Open it:** https://lukasschreyoegg.github.io/optics-visualizations/fresnel-brewster/
 
@@ -43,7 +43,7 @@ You drag a lamp around a point on a glass surface and watch how much light is re
 
 ### How it works
 
-Snell's law gives the direction of the refracted ray, and the Fresnel equations give the amplitudes of the reflected and the transmitted wave for TE and TM. The reflected power is `R = |r|²`, the transmitted power `T = (n₂·cos θ_t)/(n₁·cos θ_i) · |t|²`, and the thickness of each ray in the picture is proportional to its power. For TM light the electrons in the glass oscillate perpendicular to the refracted ray, and an oscillating dipole emits nothing along its axis. At the Brewster angle the reflected ray would run exactly along that axis. This happens when `θ_i + θ_t = 90°`, which gives `tan θ_B = n₂/n₁`. Coming from inside the glass, `sin θ_t` would have to exceed 1 above `sin θ_c = n₂/n₁`; then all light is reflected, and only an evanescent wave reaches a few hundred nanometres into the air, with depth `d = λ/(2π·√(n₁² sin²θ_i − n₂²))`.
+Snell's law gives the direction of the refracted ray, and the Fresnel equations give the amplitudes of the reflected and the transmitted wave for TE and TM. The reflected power is `R = |r|²`, the transmitted power `T = (n₂·cos θ_t)/(n₁·cos θ_i) · |t|²`, and in the picture every ray has the same width while its brightness shows its power (drawn with the display gamma, so 4 % of the power looks like 4 % of the light). For TM light the electrons in the glass oscillate perpendicular to the refracted ray, and an oscillating dipole emits nothing along its axis. At the Brewster angle the reflected ray would run exactly along that axis. This happens when `θ_i + θ_t = 90°`, which gives `tan θ_B = n₂/n₁`. Coming from inside the glass, `sin θ_t` would have to exceed 1 above `sin θ_c = n₂/n₁`; then all light is reflected, and only an evanescent wave reaches a few hundred nanometres into the air, with depth `d = λ/(2π·√(n₁² sin²θ_i − n₂²))`.
 
 ### Does it give the right numbers?
 

@@ -55,12 +55,7 @@
   <h1>Why does glass reflect, and when does it stop?</h1>
   <div class="say" id="say"></div>
   <canvas id="scene" height="440"></canvas>
-  <div class="legend">
-    <span><svg width="30" height="10"><line x1="2" y1="5" x2="28" y2="5" stroke="#fff" stroke-width="5" stroke-linecap="round"/><circle cx="15" cy="5" r="2" fill="#0b0b0c"/></svg>TE: E oscillates out of the page</span>
-    <span><svg width="30" height="10"><line x1="2" y1="5" x2="28" y2="5" stroke="#fff" stroke-width="5" stroke-linecap="round"/><line x1="15" y1="0.5" x2="15" y2="9.5" stroke="#0b0b0c" stroke-width="1.8"/></svg>TM: E oscillates in the page</span>
-    <span><svg width="34" height="22" viewBox="-17 -11 34 22"><ellipse cx="0" cy="-6" rx="4.5" ry="5.5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.6)" stroke-width="1"/><ellipse cx="0" cy="6" rx="4.5" ry="5.5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.6)" stroke-width="1"/><path d="M-12 0 H12 M12 0 l-3 -2.5 M12 0 l-3 2.5 M-12 0 l3 -2.5 M-12 0 l3 2.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>electrons driven by TM light, and where they radiate (none along the arrow)</span>
-    <span>Thickness of a ray ∝ its power</span>
-  </div>
+  <div class="legend"><span>The brightness of each ray shows how much of the light it carries.</span></div>
 
   <div class="row">
     <div>
@@ -76,7 +71,7 @@
     </div>
     <div>
       <div class="lab">Light</div>
-      <div style="margin-top:6px"><button class="pill" data-pol="TE">TE</button><button class="pill" data-pol="TM">TM</button><button class="pill on" data-pol="both">both</button></div>
+      <div style="margin-top:6px"><button class="pill" data-pol="TE">TE</button><button class="pill" data-pol="TM">TM</button><button class="pill on" data-pol="both">unpolarised</button></div>
       <div class="lab" style="margin-top:6px">Material</div>
       <div style="margin-top:6px"><button class="pill" data-n="1.333">water 1.33</button><button class="pill on" data-n="1.5">glass 1.50</button><button class="pill" data-n="2.417">diamond 2.42</button></div>
       <button class="pill" id="flip" style="margin-top:4px">⇅ Light from below</button>
@@ -92,7 +87,8 @@
         <div class="eq"><i>r</i><sub>TE</sub> = (<i>n</i><sub>1</sub> cos <i>θ</i><sub>i</sub> − <i>n</i><sub>2</sub> cos <i>θ</i><sub>t</sub>) / (<i>n</i><sub>1</sub> cos <i>θ</i><sub>i</sub> + <i>n</i><sub>2</sub> cos <i>θ</i><sub>t</sub>), &nbsp; <i>r</i><sub>TM</sub> = (<i>n</i><sub>2</sub> cos <i>θ</i><sub>i</sub> − <i>n</i><sub>1</sub> cos <i>θ</i><sub>t</sub>) / (<i>n</i><sub>2</sub> cos <i>θ</i><sub>i</sub> + <i>n</i><sub>1</sub> cos <i>θ</i><sub>t</sub>)</div>
         <div class="eq"><i>t</i><sub>TE</sub> = 2<i>n</i><sub>1</sub> cos <i>θ</i><sub>i</sub> / (<i>n</i><sub>1</sub> cos <i>θ</i><sub>i</sub> + <i>n</i><sub>2</sub> cos <i>θ</i><sub>t</sub>), &nbsp; <i>t</i><sub>TM</sub> = 2<i>n</i><sub>1</sub> cos <i>θ</i><sub>i</sub> / (<i>n</i><sub>2</sub> cos <i>θ</i><sub>i</sub> + <i>n</i><sub>1</sub> cos <i>θ</i><sub>t</sub>)</div>
         <div class="eq"><i>R</i> = |<i>r</i>|<sup>2</sup>, &nbsp; <i>T</i> = (<i>n</i><sub>2</sub> cos <i>θ</i><sub>t</sub>)/(<i>n</i><sub>1</sub> cos <i>θ</i><sub>i</sub>) · |<i>t</i>|<sup>2</sup></div>
-        <p>The factor in <i>T</i> accounts for the different speed and the different width of the beam in the second medium. Sign conventions for <i>r</i><sub>TM</sub> differ between textbooks; the reflected powers <i>R</i> do not depend on them. For unpolarised light (“both”) the powers of TE and TM are averaged.</p>
+        <p>The factor in <i>T</i> accounts for the different speed and the different width of the beam in the second medium. Sign conventions for <i>r</i><sub>TM</sub> differ between textbooks; the reflected powers <i>R</i> do not depend on them. For unpolarised light the powers of TE and TM are averaged.</p>
+        <p><b>The picture.</b> All rays have the same width; their brightness is their power, drawn with the usual display gamma, so a ray with 4 % of the power really looks like 4 % of the light.</p>
         <p><b>Brewster angle.</b> For TM light the dipoles in the second medium oscillate perpendicular to the refracted ray, in the plane of incidence. A dipole emits nothing along its axis (radiated power ∝ sin<sup>2</sup>ϑ, as on the Rayleigh page). If the reflected ray would run exactly along that axis, there is no TM reflection. This happens when reflected and refracted ray are perpendicular, <i>θ</i><sub>i</sub> + <i>θ</i><sub>t</sub> = 90°, which with Snell's law gives tan <i>θ</i><sub>B</sub> = <i>n</i><sub>2</sub>/<i>n</i><sub>1</sub>. Reflection at this angle is a simple polariser.</p>
         <p><b>Total internal reflection.</b> Coming from the denser medium, sin <i>θ</i><sub>t</sub> would exceed 1 above sin <i>θ</i><sub>c</sub> = <i>n</i><sub>2</sub>/<i>n</i><sub>1</sub>. Then cos <i>θ</i><sub>t</sub> becomes imaginary, |<i>r</i>| = 1 and all light is reflected. Behind the interface only an evanescent wave remains, which decays with the depth</p>
         <div class="eq"><i>d</i> = <i>λ</i> / (2π √(<i>n</i><sub>1</sub><sup>2</sup> sin<sup>2</sup><i>θ</i><sub>i</sub> − <i>n</i><sub>2</sub><sup>2</sup>)) &nbsp; (here for <i>λ</i> = 550 nm).</div>
@@ -186,14 +182,25 @@ function geometry(w) {
 
 function sentence(f, n1, n2) {
   const th = state.th, thB = deg(Math.atan(n2 / n1)), R0 = ((n1 - n2) / (n1 + n2)) ** 2;
+  const mat = names[state.n], into = state.below ? "the air" : "the " + mat;
   if (f.tir) {
     const d = 550 / (2 * Math.PI * Math.sqrt(n1 * n1 * Math.sin(rad(th)) ** 2 - n2 * n2));
-    return `Total internal reflection: above θc = ${deg(Math.asin(n2 / n1)).toFixed(1)}° all light is reflected. Behind the surface only an evanescent wave remains, which dies off within about ${d < 1000 ? d.toFixed(0) + " nm" : (d / 1000).toFixed(1) + " μm"}.`;
+    return `Total internal reflection: above θc = ${deg(Math.asin(n2 / n1)).toFixed(1)}° no light gets out of the ${mat}, all of it is reflected. Only an evanescent wave reaches about ${d < 1000 ? d.toFixed(0) + " nm" : (d / 1000).toFixed(1) + " μm"} into the air.`;
   }
-  if (Math.abs(th - thB) < 0.8) return `Brewster angle, θB = ${thB.toFixed(1)}°: reflected and refracted ray are perpendicular (θi + θt = 90°). The reflected ray would run along the axis of the TM dipoles, and a dipole emits nothing along its axis, so only TE light is reflected.`;
-  if (th < 8) return `Almost perpendicular: only ((n₁ − n₂)/(n₁ + n₂))² = ${pct(R0)} is reflected, the same for TE and TM.`;
-  if (th > 80 && !state.below) return `Grazing incidence: most of the light is reflected, for TE and TM. That is why a calm lake mirrors the far shore.`;
-  return `TE light is reflected more strongly than TM light. Move the lamp to θB = ${thB.toFixed(1)}° and the TM reflection vanishes.`;
+  const P = shares(f);
+  if (Math.abs(th - thB) < 0.8) {
+    if (state.pol === "TM") return `Brewster angle, θB = ${thB.toFixed(1)}°: TM light is not reflected at all, so the reflected ray is gone. Here the reflected and the refracted ray would be exactly perpendicular.`;
+    if (state.pol === "TE") return `Brewster angle, θB = ${thB.toFixed(1)}°: TE light is still reflected (${pct(f.RTE)}). Switch to TM and the reflected ray disappears.`;
+    return `Brewster angle, θB = ${thB.toFixed(1)}°: the TM part is not reflected at all, so the reflected light (${pct(P.r)}) is pure TE. Switch to TM and the reflected ray disappears.`;
+  }
+  if (th < 8) return `Almost perpendicular: only ((n₁ − n₂)/(n₁ + n₂))² = ${pct(R0)} is reflected, the rest goes into ${into}.`;
+  if (th > 80 && !state.below) return `Grazing incidence: ${pct(P.r)} is reflected. That is why a calm lake mirrors the far shore.`;
+  return `${pct(P.r)} of the light is reflected and ${pct(P.t)} goes into ${into}. TE light is reflected more strongly than TM light; at θB = ${thB.toFixed(1)}° the TM reflection vanishes.`;
+}
+// reflected and transmitted share of the incident power for the chosen light
+function shares(f) {
+  const a = state.pol === "TE" ? 1 : state.pol === "TM" ? 0 : 0.5;
+  return { r: a * f.RTE + (1 - a) * f.RTM, t: a * f.TTE + (1 - a) * f.TTM };
 }
 
 function render() {
@@ -223,27 +230,23 @@ function drawScene(f, n1, n2) {
   // rays: incident from the lamp (left), reflected (right, same side), transmitted (right, other side)
   const lamp = [g.X - g.L * Math.sin(th), g.Y + up * g.L * Math.cos(th)];
   const refl = [g.X + g.L * Math.sin(th), g.Y + up * g.L * Math.cos(th)];
-  const showTE = state.pol !== "TM", showTM = state.pol !== "TE";
-  const wTE = showTE ? (showTM ? 0.5 : 1) : 0, wTM = showTM ? (showTE ? 0.5 : 1) : 0;   // share of the incident power
-  const Pr = wTE * f.RTE + wTM * f.RTM, Pt = wTE * f.TTE + wTM * f.TTM;
-  const W0 = 5 * Math.min(1.4, s);
-  if (showTM && !f.tir) dipole(ctx, g, f.tht, up, s, "lobes");
-  ray(ctx, lamp, [g.X, g.Y], 1, W0, showTE, showTM, s);
-  ray(ctx, [g.X, g.Y], refl, Pr, W0, showTE && f.RTE > 0.002, showTM && f.RTM > 0.002, s);
+  const P = shares(f), W = 5 * Math.min(1.4, s);
+  ray(ctx, lamp, [g.X, g.Y], 1, W);
+  ray(ctx, [g.X, g.Y], refl, P.r, W);
+  rayLabel(ctx, g, refl, "reflected " + pct(P.r), up, s);
   if (!f.tir) {
     const tht = f.tht, Lt = 1.25 * g.L;
     const tr = [g.X + Lt * Math.sin(tht), g.Y - up * Lt * Math.cos(tht)];
-    ray(ctx, [g.X, g.Y], tr, Pt, W0, showTE, showTM, s);
-    // dipole of the TM light in the second medium: perpendicular to the refracted ray, in the plane
-    if (showTM) dipole(ctx, g, tht, up, s, "arrow");
+    ray(ctx, [g.X, g.Y], tr, P.t, W);
+    rayLabel(ctx, g, tr, "transmitted " + pct(P.t), -up, s);
     angleArc(ctx, g, tht, -up, `θt = ${deg(tht).toFixed(1)}°`, true, s);
   } else {
-    // evanescent wave: a thin glow on the other side of the interface
-    const rx = 0.13 * w, ry = 18 * s;
+    // evanescent wave: a faint thin band on the other side of the interface
+    const rx = 0.12 * w, ry = 12 * s;
     ctx.save(); ctx.beginPath(); ctx.rect(0, up > 0 ? 0 : g.Y, w, up > 0 ? g.Y : h - g.Y); ctx.clip();
     ctx.translate(g.X, g.Y); ctx.scale(1, ry / rx);
     const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
-    grd.addColorStop(0, "rgba(255,255,255,0.35)"); grd.addColorStop(1, "rgba(255,255,255,0)");
+    grd.addColorStop(0, "rgba(255,255,255,0.22)"); grd.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0, 0, rx, 0, 2 * Math.PI); ctx.fill(); ctx.restore();
   }
   angleArc(ctx, g, th, up, `θi = ${state.th.toFixed(1)}°`, false, s);
@@ -253,64 +256,70 @@ function drawScene(f, n1, n2) {
   // media labels
   ctx.fillStyle = "#9a9a9a"; ctx.font = `${Math.round(Math.max(11, 12 * Math.min(1.2, s)))}px -apple-system, system-ui, sans-serif`;
   const top = "air · n = 1.00", bot = `${names[state.n]} · n = ${state.n.toFixed(2)}`;
-  ctx.fillText(top, 16, 26); ctx.fillText(bot, 16, g.Y + 24);
-  if (state.below) { ctx.fillText("light comes from the " + names[state.n], 16, h - 14); }
+  ctx.fillText(top + (state.below ? "" : " · light comes from here"), 16, 26);
+  ctx.fillText(bot + (state.below ? " · light comes from here" : ""), 16, h - 14);
 }
 
-// a ray from A to B carrying the power P (0..1); TE as dots, TM as ticks
-function ray(ctx, A, B, P, W0, te, tm, s) {
-  if (P < 0.002) return;
-  const wdt = Math.max(1.4, W0 * Math.sqrt(P));
-  ctx.lineCap = "round"; ctx.strokeStyle = `rgba(255,255,255,${(0.35 + 0.65 * Math.sqrt(P)).toFixed(3)})`; ctx.lineWidth = wdt;
+// a plain ray from A to B carrying the power P (0..1). Same width for all rays; the brightness is the
+// power, gamma-encoded for the display (sRGB ≈ P^(1/2.2)), so it looks like that share of the light.
+function ray(ctx, A, B, P, W) {
+  if (P < 1e-4) return;
+  ctx.lineCap = "butt"; ctx.lineWidth = W;
+  ctx.strokeStyle = `rgba(255,255,255,${Math.pow(P, 1 / 2.2).toFixed(3)})`;
   ctx.beginPath(); ctx.moveTo(...A); ctx.lineTo(...B); ctx.stroke();
-  const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
-  const step = 22 * Math.min(1.4, s), on = wdt >= 3.5, mark = on ? "#0b0b0c" : "#ffffff";
-  let k = 0;
-  for (let d = step * 0.8; d < L - step * 0.4; d += step, k++) {
-    const x = A[0] + ux * d, y = A[1] + uy * d;
-    const both = te && tm, isTE = both ? k % 2 === 0 : te;
-    if (!te && !tm) continue;
-    if (isTE) { ctx.fillStyle = mark; ctx.beginPath(); ctx.arc(x, y, (on ? 2.1 : 2.6) * Math.min(1.3, s), 0, 2 * Math.PI); ctx.fill(); }
-    else {
-      const t = on ? wdt / 2 + 1 : 5 * Math.min(1.3, s);
-      ctx.strokeStyle = mark; ctx.lineWidth = 1.7; ctx.lineCap = "round";
-      ctx.beginPath(); ctx.moveTo(x - uy * t, y + ux * t); ctx.lineTo(x + uy * t, y - ux * t); ctx.stroke();
-    }
+  ctx.lineCap = "round";
+}
+// percentage at the outer end of a ray, pushed away from the hit point
+function rayLabel(ctx, g, E, text, side, s) {
+  const dx = E[0] - g.X, dy = E[1] - g.Y, L = Math.hypot(dx, dy);
+  const k = 16 * Math.min(1.3, s);
+  let x = E[0] + dx / L * k, y = E[1] + dy / L * k + 4;
+  const yMin = 18, yMax = g.H - 10;
+  if (y < yMin || y > yMax) {                 // steep ray leaving the canvas: put the label beside it
+    y = Math.min(yMax, Math.max(yMin, y));
+    x = g.X + dx * (y - 4 - g.Y) / dy + 12 * Math.min(1.3, s);
   }
+  ctx.font = `${Math.round(12.5 * Math.min(1.25, Math.max(0.95, s)))}px -apple-system, system-ui, sans-serif`;
+  const tw = ctx.measureText(text).width;
+  x = Math.min(x, g.w - 10 - tw);
+  ctx.save(); ctx.lineWidth = 5; ctx.lineJoin = "round"; ctx.strokeStyle = y > g.Y ? "#17171b" : "#0b0b0c";
+  ctx.strokeText(text, x, y); ctx.restore();
+  ctx.fillStyle = "#d6d6d6"; ctx.fillText(text, x, y);
 }
 
-// dipole at the hit point: the electrons oscillate perpendicular to the refracted ray (TM);
-// its emission lobes (∝ sin²ϑ) lie perpendicular to the axis, along the axis it emits nothing
-function dipole(ctx, g, tht, up, s, part) {
-  const ax = Math.cos(tht), ay = up * Math.sin(tht);
-  const L = 14 * s, k = Math.min(1.4, s);
-  ctx.save(); ctx.translate(g.X, g.Y); ctx.rotate(Math.atan2(ay, ax));
-  if (part === "lobes") {
-    ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.fillStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 1.3;
-    for (const sg of [-1, 1]) { ctx.beginPath(); ctx.ellipse(0, sg * 22 * k, 11 * k, 21 * k, 0, 0, 2 * Math.PI); ctx.fill(); ctx.stroke(); }
-    ctx.restore(); return;
-  }
-  ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.2; ctx.lineCap = "round";
-  ctx.beginPath(); ctx.moveTo(-L, 0); ctx.lineTo(L, 0);
-  ctx.moveTo(L, 0); ctx.lineTo(L - 4 * s, -3 * s); ctx.moveTo(L, 0); ctx.lineTo(L - 4 * s, 3 * s);
-  ctx.moveTo(-L, 0); ctx.lineTo(-L + 4 * s, -3 * s); ctx.moveTo(-L, 0); ctx.lineTo(-L + 4 * s, 3 * s); ctx.stroke();
-  ctx.restore();
-}
-
-// arc between the normal and a ray; side −1 above the interface, +1 below; right = ray on the right
+// arc between the normal and a ray; side −1 above the interface, +1 below; right = ray on the right.
+// The label goes inside the angle if it fits there, otherwise just outside the ray, so it never covers a ray.
 function angleArc(ctx, g, a, side, label, right, s) {
   if (a < rad(1.5)) return;
-  const r = 0.07 * g.w, n0 = side < 0 ? -Math.PI / 2 : Math.PI / 2;
+  const r = Math.max(0.07 * g.w, 26), n0 = side < 0 ? -Math.PI / 2 : Math.PI / 2;
   const a1 = right ? n0 + (side < 0 ? a : -a) : n0 + (side < 0 ? -a : a);
   ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.lineWidth = 1.2;
   ctx.beginPath(); ctx.arc(g.X, g.Y, r, Math.min(n0, a1), Math.max(n0, a1)); ctx.stroke();
-  const mid = (n0 + a1) / 2, rl = r + 14 * Math.min(1.3, s);
-  ctx.fillStyle = "#d6d6d6"; ctx.font = `${Math.round(12 * Math.min(1.25, Math.max(0.95, s)))}px -apple-system, system-ui, sans-serif`;
-  ctx.textAlign = right ? "left" : "right";
-  const tx = g.X + rl * Math.cos(mid) + (right ? 2 : -2), ty = g.Y + rl * Math.sin(mid) + 4;
-  ctx.save(); ctx.lineWidth = 5; ctx.lineJoin = "round"; ctx.strokeStyle = ty > g.Y ? "#17171b" : "#0b0b0c";   // halo keeps the label readable over a ray
+  ctx.font = `${Math.round(12 * Math.min(1.25, Math.max(0.95, s)))}px -apple-system, system-ui, sans-serif`;
+  const tw = ctx.measureText(label).width, dir = right ? 1 : -1;
+  const tan = Math.tan(a), hw = tw / 2 + 2, hh = 8, room = g.Y - 6;
+  // search along the bisector for a spot where the whole text box lies between normal and ray,
+  // clear of the arc (u = sideways from the normal, d = distance from the interface)
+  const ok = (u0, d0) => {
+    let inside = 0, outside = 0;
+    for (const [u, d] of [[u0 - hw, d0 - hh], [u0 + hw, d0 - hh], [u0 - hw, d0 + hh], [u0 + hw, d0 + hh]]) {
+      if (u < 4 || d < 4 || d > room || d * Math.sin(a) - u * Math.cos(a) < 5) return false;
+      const q = Math.hypot(u, d); if (q < r - 4) inside++; else if (q > r + 4) outside++; else return false;
+    }
+    return inside === 4 || outside === 4;
+  };
+  let tx = null, ty;
+  for (let rho = 12; rho < 1.3 * g.L; rho += 2) {
+    const u0 = rho * Math.sin(a / 2), d0 = rho * Math.cos(a / 2);
+    if (ok(u0, d0)) { ctx.textAlign = "center"; tx = g.X + dir * u0; ty = g.Y + side * d0 + 4; break; }
+  }
+  if (tx === null) {                              // too narrow: just outside the ray, text box clear of it
+    const y0 = (r + 6) * Math.cos(a), far = y0 + 12;
+    ctx.textAlign = right ? "left" : "right"; tx = g.X + dir * (far * tan + 8); ty = g.Y + side * y0 + (side > 0 ? 12 : 0);
+  }
+  ctx.save(); ctx.lineWidth = 5; ctx.lineJoin = "round"; ctx.strokeStyle = ty > g.Y ? "#17171b" : "#0b0b0c";
   ctx.strokeText(label, tx, ty); ctx.restore();
-  ctx.fillText(label, tx, ty);
+  ctx.fillStyle = "#d6d6d6"; ctx.fillText(label, tx, ty);
   ctx.textAlign = "left";
 }
 
