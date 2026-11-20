@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why is the sky blue and the setting sun red? · Rayleigh scattering</title>
+<style>
+  :root { --bg: #0b0b0c; --panel: #121214; --line: #232327; --text: #d6d6d6; --dim: #9a9a9a; --track: #4a4a4a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 26px 24px 10px; }
+  h1 { font-size: 22px; font-weight: 500; color: #fff; margin: 0; }
+  .say { color: var(--dim); font-size: 14px; margin: 4px 0 14px; min-height: 42px; }
+  canvas { display: block; width: 100%; }
+  #scene { border-radius: 14px; cursor: grab; touch-action: none; }
+  #scene.drag { cursor: grabbing; }
+  .row { display: grid; grid-template-columns: 1.1fr 1.3fr 1fr; gap: 28px; margin-top: 16px; align-items: start; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; gap: 16px; } }
+  .lab { color: var(--dim); font-size: 12.5px; }
+  .big { color: #fff; font-size: 30px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; background: transparent; margin: 8px 0 10px; }
+  input[type=range]:focus { outline: none; }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: var(--track); border-radius: 2px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; margin-top: -6px; box-shadow: none; }
+  input[type=range]::-moz-range-track { height: 2px; background: var(--track); border-radius: 2px; }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; box-shadow: none; }
+  .pill { display: inline-block; background: transparent; color: var(--text); border: 1px solid var(--track); border-radius: 999px; padding: 5px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .pill:hover { background: #fff; color: #000; }
+  .pill.on { border-color: #e6e6e6; color: #fff; }
+  .pill.on:hover { color: #000; }
+  .bar { display: flex; justify-content: space-between; font-size: 12.5px; margin-top: 6px; }
+  .bar span:last-child { color: #fff; font-variant-numeric: tabular-nums; }
+  .track { height: 8px; background: #1e1e21; border-radius: 99px; margin-top: 3px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 99px; }
+  .sun { width: 46px; height: 46px; border-radius: 50%; margin: 6px 0 12px; }
+  .more { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; }
+  details { flex: 0 0 auto; }
+  details[open] { flex-basis: 100%; }
+  details > summary { list-style: none; display: inline-block; border: 1px solid #2a2a2e; color: var(--dim); border-radius: 999px; padding: 5px 14px; font-size: 13px; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary:hover { border-color: #e6e6e6; color: #fff; }
+  details[open] > summary { color: #fff; border-color: #e6e6e6; }
+  .panel { background: var(--panel); border-radius: 14px; padding: 14px 18px; margin-top: 10px; }
+  .panel p, .panel li { font-size: 13.5px; }
+  .eq { font-family: "Times New Roman", Times, serif; font-size: 16px; color: #fff; text-align: center; margin: 8px 0; }
+  .eq i, .panel i { font-family: "Times New Roman", Times, serif; font-size: 1.08em; }
+  .crow { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .crow:last-child { border-bottom: none; }
+  .crow .v { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .crow .v b { color: #fff; font-weight: 400; }
+  .hint { color: var(--dim); font-size: 12px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; margin: 6px 0 2px; }
+  .legend svg { margin-right: 6px; vertical-align: middle; }
+  footer { color: #7a7a7a; font-size: 12px; max-width: 1100px; margin: 0 auto; padding: 18px 24px 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Why is the sky blue and the setting sun red?</h1>
+  <div class="say" id="say"></div>
+  <canvas id="scene" height="370"></canvas>
+
+  <div class="row">
+    <div>
+      <div class="lab">Sun elevation · drag the sun or use the slider</div>
+      <div class="big" id="hv"></div>
+      <input type="range" id="h" min="-8" max="90" step="0.5" value="40" aria-label="Sun elevation">
+      <button class="pill" id="play">▶ Play sunset</button>
+    </div>
+    <div>
+      <div class="lab">Light that reaches you</div>
+      <div class="bar"><span>Blue</span><span id="t450"></span></div><div class="track"><div class="fill" id="f450"></div></div>
+      <div class="bar"><span>Green</span><span id="t550"></span></div><div class="track"><div class="fill" id="f550"></div></div>
+      <div class="bar"><span>Red</span><span id="t700"></span></div><div class="track"><div class="fill" id="f700"></div></div>
+    </div>
+    <div>
+      <div class="lab">The sun looks like this</div>
+      <div class="sun" id="sunBox"></div>
+      <button class="pill" id="cloudBtn">Cloud: off</button>
+      <div id="cloudCtl" style="display:none">
+        <input type="range" id="dz" min="50" max="2000" step="50" value="500" aria-label="Cloud thickness">
+        <div class="hint" id="cloudTxt"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="more">
+    <details id="how">
+      <summary>How it works</summary>
+      <div class="panel">
+        <canvas id="spec" height="200"></canvas>
+        <div class="legend">
+          <span><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="#8c8c8c" stroke-width="1.4" stroke-dasharray="5 4"/></svg>sunlight above the atmosphere</span>
+          <span><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="#fff" stroke-width="2.2"/></svg>sunlight that reaches you</span>
+          <span><svg width="26" height="8"><line x1="0" y1="4" x2="26" y2="4" stroke="#b8b8b8" stroke-width="2.2" stroke-dasharray="1.5 3"/></svg>sky light straight overhead</span>
+        </div>
+        <div class="hint">Each curve is normalised to its own maximum, so you compare shapes, not brightness.</div>
+        <p><b>The idea.</b> Two things together explain both colours. First, air molecules scatter blue light about six times more strongly than red light (σ ∝ λ<sup>−4</sup>). The blue that is scattered out of the sunlight reaches you from every direction: that is the blue sky. Second, the lower the sun, the longer its light travels through the air. On the horizon the path is about 35 times longer than with the sun straight overhead, so nearly all of the blue is gone before the light reaches you.</p>
+        <p><b>Scattering by one molecule.</b> The light field drives the electrons of a molecule far below their resonance (ω ≪ ω<sub>0</sub>, resonances in the UV). The induced dipole <i>p</i> = αε<sub>0</sub><i>E</i> oscillates with an amplitude almost independent of ω, and a dipole radiates a power proportional to its acceleration squared, <i>P</i> ∝ ω<sup>4</sup><i>p</i><sub>0</sub><sup>2</sup>. Instead of guessing ω<sub>0</sub>, I take the polarisability from the measured refractive index of air, since the same α causes dispersion:</p>
+        <div class="eq"><i>σ</i>(<i>λ</i>) = 24π<sup>3</sup> / (<i>λ</i><sup>4</sup> <i>N</i><sub>s</sub><sup>2</sup>) · [(<i>n</i><sup>2</sup> − 1)/(<i>n</i><sup>2</sup> + 2)]<sup>2</sup> · <i>F</i><sub>K</sub></div>
+        <p><i>n</i>(λ): Edlén-type formula for standard air (Peck &amp; Reeder 1972, 15 °C, 1013.25 hPa). <i>N</i><sub>s</sub> = <i>p</i>/(<i>k</i><sub>B</sub><i>T</i>) = 2.55·10<sup>25</sup> m<sup>−3</sup>. <i>F</i><sub>K</sub> = 1.049 corrects for the non-spherical N<sub>2</sub> and O<sub>2</sub> molecules (King factor). The small rise of <i>n</i> towards the blue is the resonance term (ω<sub>0</sub><sup>2</sup> − ω<sup>2</sup>)<sup>−2</sup>; it makes the effective exponent slightly steeper than −4.</p>
+        <p><b>Why <i>N</i>σ also near the ground.</b> In an ideal gas the molecules sit independently of each other (Poisson statistics, ⟨Δ<i>N</i><sup>2</sup>⟩ = ⟨<i>N</i>⟩). The sideways scattered waves then add in intensity, so the scattering coefficient is β = <i>N</i>σ at every altitude. In liquids and solids this is not true, because density fluctuations are suppressed.</p>
+        <p><b>Atmosphere and path length.</b> Isothermal (<i>T</i> = 288 K), <i>N</i>(<i>z</i>) = <i>N</i><sub>s</sub> e<sup>−<i>z</i>/<i>H</i></sup> with scale height <i>H</i> = <i>k</i><sub>B</sub><i>T</i>/(<i>mg</i>) = 8.4 km, cut at 100 km. Spherical Earth, <i>R</i> = 6371 km.</p>
+        <div class="eq"><i>τ</i>(<i>λ</i>) = <i>σ</i>(<i>λ</i>) ∫ <i>N</i> d<i>s</i> + <i>σ</i><sub>O3</sub>(<i>λ</i>) ∫ <i>n</i><sub>O3</sub> d<i>s</i>, &nbsp; <i>T</i> = e<sup>−<i>τ</i></sup>, &nbsp; <i>X</i> = ∫<i>N</i> d<i>s</i> / ∫<i>N</i> d<i>z</i></div>
+        <p>The path integrals are done numerically (trapezoidal rule with quadratic spacing). The air mass <i>X</i> is not a slider: it follows from the geometry.</p>
+        <p><b>Ozone.</b> A layer around 22 km (300 Dobson units, Gaussian profile, 6 km width) absorbs in the Chappuis band, modelled as a Gaussian with a peak cross section of 5·10<sup>−21</sup> cm<sup>2</sup> at 600 nm and a width of 60 nm (good to about 30 %). At noon it hardly matters (vertical optical depth 0.04 at 600 nm). At twilight the light crosses the ozone layer over hundreds of kilometres; ozone then removes orange light and keeps the sky overhead blue instead of grey (Hulburt 1953).</p>
+        <p><b>Sky light.</b> Single scattering along each line of sight. Sunlight reaching a point is attenuated on its way in, the scattered light again on its way to you. Points in the Earth's shadow get no sunlight, which is why the sky goes dark after sunset. Rayleigh phase function <i>p</i>(Θ) = 3(1 + cos<sup>2</sup>Θ)/(16π).</p>
+        <p><b>The picture.</b> Heights are hugely exaggerated (logarithmic height scale). The colour of the beam at a drawn point is computed for the real altitude of that point: it is the light left after crossing all the air above it. The dots next to the beam are the light scattered out of it there (spectrum ∝ <i>E</i>(λ)<i>T</i>(λ)σ(λ)), brighter where the air is denser. The air layer is painted with the sky the person sees: its bottom is the horizon, its top the zenith, and the side of the sun is the view towards the sun.</p>
+        <p><b>Sun and colours.</b> The sun is a black body at 5772 K above the atmosphere, and the white balance is set so that this light is white. Colours come from the CIE 1931 colour-matching functions (analytic fit by Wyman, Sloan &amp; Shirley 2013), converted to sRGB. The exposure adapts partly to the overall brightness of the sky, like the eye does (square root of the brightness ratio, at most 6×): a sunset does not simply turn black, but the night still does.</p>
+        <p><b>Cloud (optional).</b> Water droplets with <i>r</i> = 10 μm are much larger than λ (size parameter 2π<i>r</i>/λ ≈ 80–170). Their extinction efficiency is <i>Q</i><sub>ext</sub> ≈ 2 for all visible wavelengths, so a cloud does not prefer any colour. Optical depth from liquid water content LWC = 0.3 g/m³ and thickness Δ<i>z</i> (base at 1 km):</p>
+        <div class="eq"><i>τ</i><sub>c</sub> = 3 · LWC · Δ<i>z</i> / (2 <i>ρ</i><sub>w</sub> <i>r</i>), &nbsp; <i>T</i><sub>d</sub> ≈ 1 / (1 + ¾(1 − <i>g</i>)<i>τ</i><sub>c</sub>), &nbsp; <i>R</i><sub>d</sub> = 1 − <i>T</i><sub>d</sub></div>
+        <p><i>T</i><sub>d</sub> is the diffuse transmission of a non-absorbing layer in the two-stream (Eddington) approximation with asymmetry parameter <i>g</i> = 0.85; it is only good to roughly 10–20 %. A thick cloud sends most of the light back up: brilliant white from an aeroplane, grey from below.</p>
+        <p><b>Not included.</b> Aerosols (real sunsets are darker and deeper red, the real sky is whiter), multiple scattering in clear air (the computed sky is somewhat too dark overhead), refraction (on the horizon the real sun appears about 0.5° higher), light reflected by the ground.</p>
+      </div>
+    </details>
+    <details id="chkBox">
+      <summary id="chkSum">Check: numerical vs. analytical</summary>
+      <div class="panel" id="chk"></div>
+    </details>
+  </div>
+</div>
+<footer>Built with Claude (Anthropic) as coding assistant. Idea and physics checks: Lukas Schreyögg.</footer>
+
+<script>
+"use strict";
+// ======================================================================
+// Physics
+// ======================================================================
+const K = {
+  kB: 1.380649e-23, NA: 6.02214076e23, h: 6.62607015e-34, c: 2.99792458e8,
+  T: 288.15, p: 101325, M: 28.9647e-3, g: 9.80665,
+  R: 6.371e6, zTop: 100e3, Tsun: 5772, FK: 1.049,
+  // ozone: Gaussian layer, Chappuis band as a Gaussian in wavelength
+  zO3: 22e3, wO3: 6e3, DU: 2.687e20, O3DU: 300, sigO3: 5.0e-25, lamO3: 600e-9, dlamO3: 60e-9,
+  // cloud
+  zBase: 1000, LWC: 0.3e-3, rhoW: 1000, rEff: 10e-6, gAsym: 0.85,
+};
+K.m = K.M / K.NA;
+K.Ns = K.p / (K.kB * K.T);
+K.H = K.kB * K.T / (K.m * K.g);
+K.Cvert = K.H * (1 - Math.exp(-K.zTop / K.H));                  // exact vertical air column ∫ e^{-z/H} dz
+K.nO3 = K.O3DU * K.DU / (K.wO3 * Math.sqrt(2 * Math.PI));        // ozone density at the layer peak (m^-3)
+
+// refractive index of standard air (Peck & Reeder 1972), lambda in metres
+function nAir(lam) {
+  const s2 = Math.pow(1 / (lam * 1e6), 2);
+  return 1 + (5791817 / (238.0185 - s2) + 167909 / (57.362 - s2)) * 1e-8;
+}
+// Rayleigh cross section per molecule (m^2)
+function sigmaR(lam) {
+  const n = nAir(lam), n2 = n * n, f = (n2 - 1) / (n2 + 2);
+  return 24 * Math.PI ** 3 / (lam ** 4 * K.Ns ** 2) * f * f * K.FK;
+}
+const sigmaO3 = lam => K.sigO3 * Math.exp(-0.5 * ((lam - K.lamO3) / K.dlamO3) ** 2);
+const planck = lam => Math.pow(lam, -5) / (Math.exp(K.h * K.c / (lam * K.kB * K.Tsun)) - 1);
+// CIE 1931 2° colour matching functions, multi-lobe fit (Wyman, Sloan & Shirley 2013), lambda in nm
+function g3(x, mu, s1, s2) { const t = (x - mu) / (x < mu ? s1 : s2); return Math.exp(-0.5 * t * t); }
+function cmf(nm) {
+  return [
+    1.056 * g3(nm, 599.8, 37.9, 31.0) + 0.362 * g3(nm, 442.0, 16.0, 26.7) - 0.065 * g3(nm, 501.1, 20.4, 26.2),
+    0.821 * g3(nm, 568.8, 46.9, 40.5) + 0.286 * g3(nm, 530.9, 16.3, 31.1),
+    1.217 * g3(nm, 437.0, 11.8, 36.0) + 0.681 * g3(nm, 459.0, 26.0, 13.8),
+  ];
+}
+
+
+// wavelength grid 380–750 nm
+const NL = 75, LAM = new Float64Array(NL), SIG = new Float64Array(NL), BETA0 = new Float64Array(NL), KO3 = new Float64Array(NL),
+      ESUN = new Float64Array(NL), CX = new Float64Array(NL), CY = new Float64Array(NL), CZ = new Float64Array(NL);
+(function () {
+  const p550 = planck(550e-9);
+  for (let i = 0; i < NL; i++) {
+    const nm = 380 + 5 * i; LAM[i] = nm * 1e-9;
+    SIG[i] = sigmaR(LAM[i]); BETA0[i] = SIG[i] * K.Ns;      // Rayleigh scattering coefficient at the ground (1/m)
+    KO3[i] = sigmaO3(LAM[i]) * K.nO3;                       // ozone absorption coefficient at the layer peak (1/m)
+    ESUN[i] = planck(LAM[i]) / p550;
+    const c = cmf(nm); CX[i] = c[0]; CY[i] = c[1]; CZ[i] = c[2];
+  }
+})();
+const idx = nm => Math.round((nm - 380) / 5);
+
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const O = [0, 0, K.R];                                      // the person; x-axis points to the sun's azimuth
+const gO3 = z => Math.exp(-0.5 * ((z - K.zO3) / K.wO3) ** 2);
+
+// Path integrals from P along unit vector d: [∫ N/Ns ds, ∫ nO3/nO3peak ds] (metres),
+// up to the top of the atmosphere or over length sEnd. null if the ray runs into the Earth.
+function path(P, d, sEnd, N) {
+  N = N || 100;
+  const b = dot(P, d), r2 = dot(P, P);
+  if (sEnd === undefined) {
+    if (b < 0 && b * b - (r2 - K.R * K.R) > 0) return null;
+    const RT = K.R + K.zTop;
+    sEnd = -b + Math.sqrt(Math.max(0, b * b - (r2 - RT * RT)));
+  }
+  let a = 0, o = 0;
+  for (let i = 1; i <= N; i++) {                             // trapezoid with quadratic spacing; i = 0 adds 0
+    const u = i / N, s = sEnd * u * u, w = (i === N ? 0.5 : 1) * 2 * sEnd * u;
+    const z = Math.sqrt(r2 + 2 * b * s + s * s) - K.R;
+    a += Math.exp(-z / K.H) * w; o += gO3(z) * w;
+  }
+  return [a / N, o / N];
+}
+const tau = (i, q) => BETA0[i] * q[0] + KO3[i] * q[1];
+function distToAlt(P, d, zt) {
+  const b = dot(P, d), r2 = dot(P, P), Rt = K.R + zt;
+  return -b + Math.sqrt(Math.max(0, b * b - (r2 - Rt * Rt)));
+}
+function dirFromElevAz(elDeg, azDeg) {
+  const e = elDeg * Math.PI / 180, a = azDeg * Math.PI / 180;
+  return [Math.cos(e) * Math.cos(a), Math.cos(e) * Math.sin(a), Math.sin(e)];
+}
+const airMass = hDeg => { const q = path(O, dirFromElevAz(hDeg, 0)); return q ? q[0] / K.Cvert : Infinity; };
+
+function cloudProps(dz) {
+  const tau = 3 * K.LWC * dz / (2 * K.rhoW * K.rEff);
+  const Td = 1 / (1 + 0.75 * (1 - K.gAsym) * tau);
+  return { tau, Td, Rd: 1 - Td, zTop: K.zBase + dz };
+}
+
+// clear-sky radiance spectrum in direction V (single scattering), sun in direction S
+function clearSky(V, S) {
+  const out = new Float64Array(NL), acc = new Float64Array(NL);
+  const cosT = dot(S, V), phase = 3 * (1 + cosT * cosT) / (16 * Math.PI);
+  const r2 = dot(O, O), b = dot(O, V), sEnd = distToAlt(O, V, K.zTop), NS = 70;
+  let cA = 0, cO = 0, fA0 = 1, fO0 = gO3(0), sPrev = 0;
+  for (let j = 1; j <= NS; j++) {
+    const u = j / NS, s = sEnd * u * u;
+    const z = Math.sqrt(r2 + 2 * b * s + s * s) - K.R, fA = Math.exp(-z / K.H), fO = gO3(z);
+    cA += 0.5 * (fA + fA0) * (s - sPrev); cO += 0.5 * (fO + fO0) * (s - sPrev);   // person -> this point
+    fA0 = fA; fO0 = fO; sPrev = s;
+    const q = path([s * V[0], s * V[1], K.R + s * V[2]], S, undefined, 70);     // this point -> sun
+    if (!q) continue;                                                           // in the Earth's shadow
+    const w = (j === NS ? 0.5 : 1) * 2 * sEnd * u / NS * fA;
+    for (let i = 0; i < NL; i++) acc[i] += w * Math.exp(-(BETA0[i] * (q[0] + cA) + KO3[i] * (q[1] + cO)));
+  }
+  for (let i = 0; i < NL; i++) out[i] = ESUN[i] * BETA0[i] * phase * acc[i];
+  return out;
+}
+// radiance of the cloud base seen straight up, including the air below the cloud
+function cloudBase(S, cp) {
+  const out = new Float64Array(NL), sinh = Math.max(0, S[2]);
+  const q = sinh > 0 ? path([0, 0, K.R + cp.zTop], S) : null;
+  const qb = path(O, [0, 0, 1], K.zBase, 30);
+  for (let i = 0; i < NL; i++) {
+    let Lb = 0;
+    if (q) {
+      const TR = Math.exp(-BETA0[i] * q[0]), TO = Math.exp(-KO3[i] * q[1]);
+      Lb = ESUN[i] * sinh * (TR + 0.5 * (1 - TR)) * TO * cp.Td / Math.PI;   // direct sun + downward half of the scattered light
+    }
+    const tb = Math.exp(-tau(i, qb));
+    out[i] = Lb * (tb + 0.5 * (1 - tb));                                    // air below the cloud is lit from above
+  }
+  return out;
+}
+// ======================================================================
+// Colour
+// ======================================================================
+const M = [[3.2406, -1.5372, -0.4986], [-0.9689, 1.8758, 0.0415], [0.0557, -0.2040, 1.0570]];
+let YWHITE = 0, WB = [1, 1, 1];
+(function () {
+  let X = 0, Y = 0, Z = 0;
+  for (let i = 0; i < NL; i++) { X += ESUN[i] / Math.PI * CX[i]; Y += ESUN[i] / Math.PI * CY[i]; Z += ESUN[i] / Math.PI * CZ[i]; }
+  YWHITE = Y;
+  const rgb = M.map(r => (r[0] * X + r[1] * Y + r[2] * Z) / YWHITE);
+  WB = rgb.map(v => 1 / v);
+})();
+// linear, white balanced RGB; 1 = white sheet of paper in full TOA sunlight at normal incidence
+function linRGB(spec) {
+  let X = 0, Y = 0, Z = 0;
+  for (let i = 0; i < NL; i++) { X += spec[i] * CX[i]; Y += spec[i] * CY[i]; Z += spec[i] * CZ[i]; }
+  return M.map((r, k) => Math.max(0, (r[0] * X + r[1] * Y + r[2] * Z) / YWHITE * WB[k]));
+}
+const gam = v => v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+const EXPO = 11;   // fixed camera exposure (applied to luminance, keeps the hue)
+function to255(rgb, mode, gain) {
+  let c;
+  if (mode === "chroma") { const m = Math.max(...rgb, 1e-30); c = rgb.map(v => v / m); }
+  else {
+    rgb = rgb.map(v => v * (gain || 1));
+    const Y = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+    const k = Y > 0 ? (1 - Math.exp(-EXPO * Y)) / Y : 0;
+    c = rgb.map(v => v * k);
+    const m = Math.max(...c);
+    if (m > 1) { const t = Math.min(1, m - 1); c = c.map(v => v / m + (1 - v / m) * t); }   // over-exposed: towards white
+  }
+  return c.map(v => Math.round(255 * Math.min(1, Math.max(0, gam(v)))));
+}
+const toCSS = (rgb, mode, gain) => `rgb(${to255(rgb, mode, gain).join(",")})`;
+function bandColor(nm) {
+  const c = cmf(Math.min(nm, 650));   // the analytic CMF fit has unphysical tails beyond ~650 nm; hue is constant red there anyway
+  let rgb = M.map(r => Math.max(0, r[0] * c[0] + r[1] * c[1] + r[2] * c[2]));
+  const m = Math.max(...rgb, 1e-9); rgb = rgb.map(v => v / m);
+  const fade = nm < 420 ? 0.3 + 0.7 * (nm - 380) / 40 : nm > 680 ? 0.3 + 0.7 * (750 - nm) / 70 : 1;
+  return `rgb(${rgb.map(v => Math.round(255 * gam(v * fade))).join(",")})`;
+}
+
+
+
+// ======================================================================
+// Checks (numerical vs. analytical)
+// ======================================================================
+const CHECKS = (function () {
+  const qz = path(O, [0, 0, 1]);
+  const X60 = airMass(60), X0 = airMass(0);
+  const tau550 = SIG[idx(550)] * K.Ns * K.Cvert;
+  const slope = Math.log(sigmaR(700e-9) / sigmaR(450e-9)) / Math.log(700 / 450);
+  const rows = [
+    { name: "Air mass, sun at zenith", num: qz[0] / K.Cvert, ana: 1, fmt: 4, tol: 1e-3, ref: "exact" },
+    { name: "Air mass, sun at 60°", num: X60, ana: 1 / Math.sin(Math.PI / 3), fmt: 4, tol: 2e-3, ref: "1/sin h" },
+    { name: "Air mass, sun on the horizon", num: X0, ana: Math.sqrt(Math.PI * K.R / (2 * K.H)), fmt: 2, tol: 2e-3, ref: "√(πR/2H)" },
+    { name: "Ozone column overhead (DU)", num: qz[1] * K.nO3 / K.DU, ana: K.O3DU, fmt: 1, tol: 2e-3, ref: "input" },
+    { name: "Optical depth τ(550 nm), air", num: tau550, ana: 0.097, fmt: 3, tol: 0.03, ref: "literature" },
+    { name: "Exponent of σ(λ), 450–700 nm", num: slope, ana: -4, fmt: 2, tol: null, ref: "far below resonance" },
+  ];
+  rows.forEach(r => { r.pass = r.tol === null ? null : Math.abs(r.num / r.ana - 1) < r.tol; });
+  return rows;
+})();
+
+// ======================================================================
+// Scene
+// ======================================================================
+const $ = id => document.getElementById(id);
+const state = { h: 40, side: -1, cloud: false, dz: 500, cp: cloudProps(500) };   // side −1: sun on the left
+const HMIN = -8, HMAX = 90;
+const Z0 = 50, LZ = Math.log(1 + K.zTop / Z0);            // drawn height = A·ln(1 + z/z0)/ln(1 + zTop/z0)
+const E_GRID = [0, 1.5, 4, 8, 14, 22, 32, 45, 60, 75, 90], A_GRID = [0, 45, 90, 135, 180];
+
+function setupCanvas(cv, hCss) {
+  const dpr = window.devicePixelRatio || 1;
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");   // setting cv.height overwrites the attribute
+  const w = cv.clientWidth, h = hCss || +cv.dataset.h;
+  cv.style.height = h + "px";
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+const pct = v => v >= 0.1 ? (100 * v).toFixed(0) + " %" : v >= 0.01 ? (100 * v).toFixed(1) + " %" : 100 * v >= 1e-4 ? (100 * v).toPrecision(1) + " %" : "≈ 0 %";
+
+// geometry in CSS pixels: the sun at −8° just touches the left and right edge
+function geometry(w) {
+  const Rd = 0.35 * w, m = 0.035 * w, hm = HMIN * Math.PI / 180;
+  const t = (0.5 * w - m) / Math.cos(hm), sh = Math.sin(hm);
+  const Rs = Math.sqrt(Rd * Rd - Rd * Rd * sh * sh + (t + Rd * sh) ** 2);
+  const sunR = Math.max(6, 0.015 * w), top = sunR + 0.025 * w;
+  const Py = top + (Rs - Rd);
+  const H = Math.round(Py - t * sh + sunR + 0.02 * w);
+  const Ra = Rs - 0.035 * w;
+  return { w, H, Rd, Rs, Ra, Ad: Ra - Rd, Px: w / 2, Py, Cx: w / 2, Cy: Py + Rd, sunR, s: Math.max(0.6, Math.min(1.8, w / 640)) };
+}
+function sunPos(g, h, side) {
+  const r = h * Math.PI / 180, dx = side * Math.cos(r), dy = -Math.sin(r);
+  const b = g.Rd * Math.sin(r), t = -b + Math.sqrt(b * b + g.Rs * g.Rs - g.Rd * g.Rd);
+  return [g.Px + t * dx, g.Py + t * dy];
+}
+const zDraw = (g, z) => g.Ad * Math.log(1 + Math.max(0, z) / Z0) / LZ;
+const zReal = (g, zd) => Z0 * (Math.exp(Math.max(0, zd) / g.Ad * LZ) - 1);
+function hitCircle(g, A, B, rad) {
+  const dx = B[0] - A[0], dy = B[1] - A[1], fx = A[0] - g.Cx, fy = A[1] - g.Cy;
+  const a = dx * dx + dy * dy, b = 2 * (fx * dx + fy * dy), c = fx * fx + fy * fy - rad * rad, disc = b * b - 4 * a * c;
+  if (disc < 0) return null;
+  const u = (-b - Math.sqrt(disc)) / (2 * a);
+  return u > 1e-6 && u < 1 - 1e-6 ? u : null;
+}
+
+let G = null, paintCache = null;
+
+function render() {
+  state.cp = cloudProps(state.dz);
+  const S = dirFromElevAz(state.h, 0);
+  $("hv").textContent = state.h.toFixed(1).replace("-", "−") + "°";
+
+  // direct sunlight at the person
+  const q = path(O, S);
+  let cloudDirect = 1;
+  if (state.cloud && q) {
+    const slant = (distToAlt(O, S, state.cp.zTop) - distToAlt(O, S, K.zBase)) / state.dz;
+    cloudDirect = Math.exp(-state.cp.tau * slant);
+  }
+  const below = !q, hidden = below || cloudDirect < 1e-4;
+  const sunSpec = new Float64Array(NL);
+  for (let i = 0; i < NL; i++) sunSpec[i] = below ? 0 : ESUN[i] * Math.exp(-tau(i, q)) * cloudDirect;
+  [450, 550, 700].forEach(nm => {
+    const T = below ? 0 : Math.exp(-tau(idx(nm), q)) * cloudDirect;
+    $("t" + nm).textContent = pct(T);
+    $("f" + nm).style.width = (100 * T).toFixed(2) + "%";
+    $("f" + nm).style.background = bandColor(nm);
+  });
+  $("sunBox").style.background = hidden ? "#26262a" : toCSS(linRGB(sunSpec), "chroma");
+  const X = q ? q[0] / K.Cvert : Infinity;
+  $("say").textContent = sentence(X, below);
+  $("cloudTxt").textContent = "Thickness " + (state.dz / 1000).toFixed(2) + " km · " + pct(state.cp.Td) + " of the light gets through, " + pct(state.cp.Rd) + " goes back up";
+
+  // sky colours on a grid of viewing directions (elevation × azimuth from the sun)
+  const lin = skyGrid(S);
+  const gain = Math.min(6, Math.max(1, Math.sqrt(YREF / meanY(lin))));   // the eye adapts partly to a darker sky
+  const grid = lin.map(row => row.map(c => to255(c, null, gain)));
+  const under = state.cloud ? to255(linRGB(cloudBase(S, state.cp)), null, gain) : null;
+  state.gain = gain;
+  drawScene(S, grid, under, q, below);
+  if ($("how").open) drawSpectra(sunSpec, state.cloud ? cloudBase(S, state.cp) : clearSky([0, 0, 1], S));
+}
+
+function skyGrid(S) { return E_GRID.map(e => A_GRID.map(a => linRGB(clearSky(dirFromElevAz(e, a), S)))); }
+function meanY(lin) {
+  let y = 0, n = 0;
+  lin.forEach(row => row.forEach(c => { y += 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; n++; }));
+  return Math.max(1e-12, y / n);
+}
+const YREF = meanY(skyGrid(dirFromElevAz(60, 0)));   // mean sky brightness with the sun at 60°
+
+function sentence(X, below) {
+  const h = state.h, x = X < 10 ? X.toFixed(1) : X.toFixed(0);
+  if (state.cloud) return `Cloud: the droplets are much larger than the wavelength and scatter all colours alike, so the cloud is white from above and grey from below. Only ${pct(state.cp.Td)} of the light gets through.`;
+  if (below) return h > -4 ? "The sun is below the horizon. Its light no longer reaches you, but it still lights the air high above you: twilight."
+                           : "The sun is far below the horizon. Only the highest air is still lit, the sky gets dark.";
+  if (h >= 40) return `High sun: the light crosses only ${x} × the air above you. A little blue is scattered out of the beam, and that blue is the sky. The sun stays white.`;
+  if (h >= 15) return `The sun gets lower: ${x} × as much air as with the sun straight overhead. More blue is scattered away, so the sun turns slightly yellow.`;
+  if (h >= 3) return `Evening: ${x} × as much air. Most of the blue is scattered out before the light reaches you, so the sun turns yellow and orange.`;
+  return `Sunset: the light crosses ${x} × as much air as with the sun straight overhead. Almost all blue is scattered out on the way, so only orange and red reach you.`;
+}
+
+function drawScene(S, grid, under, q, below) {
+  const cv = $("scene");
+  const g = geometry(cv.clientWidth); G = g;
+  const { ctx, w, h } = setupCanvas(cv, g.H);
+  ctx.fillStyle = "#0b0b0c"; ctx.fillRect(0, 0, w, h);
+
+  // path of the sun: soft dots
+  ctx.save(); ctx.setLineDash([0, 9 * Math.min(1.4, g.s)]); ctx.lineCap = "round"; ctx.lineWidth = 2.2 * Math.min(1.4, g.s);
+  ctx.strokeStyle = "rgba(255,255,255,0.3)"; ctx.beginPath(); ctx.arc(g.Cx, g.Cy, g.Rs, 0, 2 * Math.PI); ctx.stroke(); ctx.restore();
+
+  // the air layer, painted with the sky the person sees (bottom = horizon, top = zenith, sun side = towards the sun)
+  const ow = Math.ceil(w), oh = Math.ceil(h);
+  if (!paintCache || paintCache.ow !== ow || paintCache.oh !== oh) {
+    const ei = new Float32Array(ow * oh).fill(-1), cc = new Float32Array(ow * oh), fr = new Float32Array(ow * oh);
+    const phiMax = Math.asin(Math.min(1, (w / 2) / g.Ra));
+    for (let py = 0; py < oh; py++) for (let px = 0; px < ow; px++) {
+      const x = px + 0.5 - g.Cx, y = g.Cy - (py + 0.5), r = Math.hypot(x, y);
+      if (r > g.Ra || r < g.Rd - 1) continue;
+      const f = (r - g.Rd) / g.Ad, e = 90 * Math.max(0, f);
+      let k = 0; while (k < E_GRID.length - 2 && E_GRID[k + 1] < e) k++;
+      const o = py * ow + px;
+      ei[o] = k + Math.min(1, (e - E_GRID[k]) / (E_GRID[k + 1] - E_GRID[k]));
+      cc[o] = Math.max(-1, Math.min(1, Math.atan2(x, y) / phiMax));
+      fr[o] = f;
+    }
+    const off = document.createElement("canvas"); off.width = ow; off.height = oh;
+    paintCache = { ow, oh, ei, cc, fr, off, octx: off.getContext("2d") };
+  }
+  {
+    const { ei, cc, fr, off, octx } = paintCache, img = octx.createImageData(ow, oh), D = img.data;
+    const fCloud = state.cloud ? zDraw(g, K.zBase) / g.Ad : -1;
+    for (let o = 0; o < ei.length; o++) {
+      const ev = ei[o]; if (ev < 0) continue;
+      const p = 4 * o;
+      if (fr[o] < fCloud) { D[p] = under[0]; D[p + 1] = under[1]; D[p + 2] = under[2]; D[p + 3] = 255; continue; }
+      const az = 90 - 90 * cc[o] * state.side, av = az / 45;
+      const k = Math.min(E_GRID.length - 2, Math.floor(ev)), fe = ev - k;
+      const j = Math.min(A_GRID.length - 2, Math.floor(av)), fa = av - j;
+      for (let c = 0; c < 3; c++) {
+        const a0 = grid[k][j][c] + (grid[k][j + 1][c] - grid[k][j][c]) * fa;
+        const a1 = grid[k + 1][j][c] + (grid[k + 1][j + 1][c] - grid[k + 1][j][c]) * fa;
+        D[p + c] = a0 + (a1 - a0) * fe;
+      }
+      D[p + 3] = 255;
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.drawImage(off, 0, 0, ow, oh);
+  }
+
+  // cloud layer: white on top, grey at the base
+  if (state.cloud) {
+    const r0 = g.Rd + zDraw(g, K.zBase), r1 = g.Rd + zDraw(g, state.cp.zTop);
+    const topL = state.cp.Rd * Math.max(0, S[2]), half = Math.asin(Math.min(1, (w / 2 + 20) / r1));
+    const grd = ctx.createRadialGradient(g.Cx, g.Cy, r0, g.Cx, g.Cy, r1);
+    grd.addColorStop(0, `rgb(${under.join(",")})`); grd.addColorStop(1, toCSS([topL, topL, topL], null, state.gain));
+    ctx.beginPath(); ctx.arc(g.Cx, g.Cy, r1, -Math.PI / 2 - half, -Math.PI / 2 + half);
+    ctx.arc(g.Cx, g.Cy, r0, -Math.PI / 2 + half, -Math.PI / 2 - half, true); ctx.closePath();
+    ctx.fillStyle = grd; ctx.fill();
+  }
+
+  // the beam from the sun to the person, and the light scattered out of it
+  const Sun = sunPos(g, state.h, state.side), s = g.s;
+  const Head = [g.Px, g.Py - 25 * s];
+  if (!below) {
+    const sinh = Math.sin(state.h * Math.PI / 180);
+    const uIn = hitCircle(g, Sun, Head, g.Ra) ?? 0;
+    const zStop = state.cloud ? zDraw(g, state.cp.zTop) : -1;
+    const N = 60, pts = [], dots = [];
+    for (let j = 0; j <= N; j++) {
+      const u = uIn + (1 - uIn) * j / N, x = Sun[0] + (Head[0] - Sun[0]) * u, y = Sun[1] + (Head[1] - Sun[1]) * u;
+      const zd = Math.hypot(x - g.Cx, y - g.Cy) - g.Rd;
+      if (zd < zStop) break;                                   // inside the cloud the beam is scattered away
+      const z = zReal(g, zd), sr = -K.R * sinh + Math.sqrt(K.R * K.R * sinh * sinh + 2 * K.R * z + z * z);
+      const qq = path([sr * S[0], 0, K.R + sr * S[2]], S, undefined, 50);
+      const spec = new Float64Array(NL); let Y = 0; const sc = new Float64Array(NL);
+      for (let i = 0; i < NL; i++) { spec[i] = ESUN[i] * Math.exp(-tau(i, qq)); sc[i] = spec[i] * SIG[i]; Y += sc[i] * CY[i]; }
+      pts.push({ x, y, col: toCSS(linRGB(spec), "chroma") });
+      if (j % 7 === 4) dots.push({ x, y, col: toCSS(linRGB(sc), "chroma"), str: Y * Math.exp(-z / K.H) });
+    }
+    ctx.lineCap = "round"; ctx.lineWidth = Math.max(3, 5 * Math.min(1.3, s));
+    ctx.strokeStyle = "#ffffff"; ctx.beginPath(); ctx.moveTo(...Sun); ctx.lineTo(pts.length ? pts[0].x : Sun[0], pts.length ? pts[0].y : Sun[1]); ctx.stroke();
+    for (let j = 1; j < pts.length; j++) {
+      ctx.strokeStyle = pts[j].col; ctx.beginPath(); ctx.moveTo(pts[j - 1].x, pts[j - 1].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
+    }
+    const bx = Head[0] - Sun[0], by = Head[1] - Sun[1], bl = Math.hypot(bx, by), nx = -by / bl, ny = bx / bl;
+    const smax = Math.max(...dots.map(d => d.str), 1e-30), off = 8 * Math.min(1.4, s);
+    dots.forEach((d, k) => {
+      const sg = k % 2 ? 1 : -1;
+      ctx.globalAlpha = 0.3 + 0.7 * Math.pow(d.str / smax, 0.5);
+      ctx.fillStyle = d.col; ctx.beginPath(); ctx.arc(d.x + sg * off * nx, d.y + sg * off * ny, 2.6 * Math.min(1.4, s), 0, 2 * Math.PI); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  } else {
+    const Feet = [g.Px, g.Py], uE = hitCircle(g, Sun, Feet, g.Rd) ?? 1;
+    ctx.save(); ctx.setLineDash([5, 6]); ctx.lineCap = "round"; ctx.strokeStyle = "#5a5a5e"; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.moveTo(...Sun); ctx.lineTo(Sun[0] + (Feet[0] - Sun[0]) * uE, Sun[1] + (Feet[1] - Sun[1]) * uE); ctx.stroke(); ctx.restore();
+  }
+
+  // Earth, sun, person
+  ctx.beginPath(); ctx.arc(g.Cx, g.Cy, g.Rd, 0, 2 * Math.PI); ctx.fillStyle = "#1c1c1f"; ctx.fill();
+  ctx.strokeStyle = "#3a3a3e"; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(Sun[0], Sun[1], g.sunR, 0, 2 * Math.PI); ctx.fillStyle = "#ffffff"; ctx.fill();
+  drawPerson(ctx, g.Px, g.Py, s);
+}
+
+// person: round pictogram (head, capsule body, two legs)
+function drawPerson(ctx, x, y, s) {
+  ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#ffffff";
+  ctx.beginPath(); ctx.arc(x, y - 25 * s, 4.3 * s, 0, 2 * Math.PI); ctx.fill();
+  const bw = 7 * s, bh = 11 * s, bx = x - bw / 2, by = y - 19 * s, r = bw / 2;
+  ctx.beginPath(); ctx.moveTo(bx + r, by); ctx.arcTo(bx + bw, by, bx + bw, by + bh, r); ctx.arcTo(bx + bw, by + bh, bx, by + bh, r);
+  ctx.arcTo(bx, by + bh, bx, by, r); ctx.arcTo(bx, by, bx + bw, by, r); ctx.closePath(); ctx.fill();
+  ctx.lineWidth = 2.8 * s; ctx.lineCap = "round"; ctx.beginPath();
+  ctx.moveTo(x - 1.7 * s, y - 9 * s); ctx.lineTo(x - 3.1 * s, y - 0.4 * s);
+  ctx.moveTo(x + 1.7 * s, y - 9 * s); ctx.lineTo(x + 3.1 * s, y - 0.4 * s); ctx.stroke();
+}
+
+// spectra (only drawn when "How it works" is open)
+function drawSpectra(sunSpec, skySpec) {
+  const { ctx, w, h } = setupCanvas($("spec"));
+  ctx.clearRect(0, 0, w, h);
+  const L = 40, Rr = w - 8, T = 8, B = h - 38;
+  const X = nm => L + (nm - 380) / (750 - 380) * (Rr - L);
+  for (let nm = 380; nm < 750; nm += 2) { ctx.fillStyle = bandColor(nm + 1); ctx.fillRect(X(nm), B + 6, X(nm + 2) - X(nm) + 0.5, 8); }
+  ctx.fillStyle = "#9a9a9a"; ctx.font = "11px -apple-system, system-ui, sans-serif";
+  for (let nm = 400; nm <= 700; nm += 50) ctx.fillText(nm, X(nm) - 9, B + 28);
+  ctx.fillText("λ (nm)", Rr - 34, B + 28);
+  const curve = (arr, style, dash, lw) => {
+    let m = 0; for (let i = 0; i < NL; i++) m = Math.max(m, arr[i]); if (!(m > 0)) return;
+    ctx.strokeStyle = style; ctx.setLineDash(dash); ctx.lineWidth = lw; ctx.lineCap = "round"; ctx.beginPath();
+    for (let i = 0; i < NL; i++) { const x = X(380 + 5 * i), y = B - (B - T) * arr[i] / m * 0.95; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke(); ctx.setLineDash([]);
+  };
+  curve(ESUN, "#8c8c8c", [5, 4], 1.4); curve(sunSpec, "#ffffff", [], 2.2); curve(skySpec, "#b8b8b8", [1.5, 3], 2.2);
+}
+
+function buildChecks() {
+  const all = CHECKS.filter(r => r.pass !== null).every(r => r.pass);
+  $("chkSum").textContent = "Check: numerical vs. analytical " + (all ? "✓" : "✗");
+  $("chk").innerHTML = CHECKS.map(r =>
+    `<div class="crow"><span>${r.name}</span><span class="v"><b>${r.num.toFixed(r.fmt)}</b> <span class="hint">vs ${r.ana.toFixed(r.fmt)} (${r.ref})</span> ${r.pass === null ? "&nbsp;&nbsp;" : r.pass ? "✓" : "✗"}</span></div>`
+  ).join("") + `<div class="hint" style="margin-top:8px">The exponent is a bit steeper than −4 because the UV resonance of the molecules is not infinitely far away. Literature value for τ(550 nm): Bodhaine et al. (1999).</div>`;
+}
+
+// ---------- interaction ----------
+let pending = false;
+function schedule() { if (!pending) { pending = true; requestAnimationFrame(() => { pending = false; render(); }); } }
+function setH(v) { state.h = Math.round(Math.min(HMAX, Math.max(HMIN, v)) * 2) / 2; $("h").value = state.h; schedule(); }
+$("h").addEventListener("input", ev => { stopPlay(); setH(parseFloat(ev.target.value)); });
+
+const scene = $("scene");
+let dragging = false;
+function fromPointer(ev) {
+  const rect = scene.getBoundingClientRect(), x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+  const psi = Math.atan2(x - G.Cx, G.Cy - y);                     // angle around the Earth's centre
+  const sx = G.Cx + G.Rs * Math.sin(psi), sy = G.Cy - G.Rs * Math.cos(psi);
+  const vx = sx - G.Px, vy = sy - G.Py;
+  state.side = vx < 0 ? -1 : 1;
+  setH(Math.atan2(-vy, Math.abs(vx)) * 180 / Math.PI);
+}
+scene.addEventListener("pointerdown", ev => { if (!G) return; stopPlay(); dragging = true; scene.classList.add("drag"); scene.setPointerCapture(ev.pointerId); fromPointer(ev); });
+scene.addEventListener("pointermove", ev => { if (dragging) fromPointer(ev); });
+const endDrag = () => { dragging = false; scene.classList.remove("drag"); };
+scene.addEventListener("pointerup", endDrag); scene.addEventListener("pointercancel", endDrag);
+
+let playing = null;
+function stopPlay() { if (playing) { cancelAnimationFrame(playing); playing = null; $("play").textContent = "▶ Play sunset"; } }
+$("play").addEventListener("click", () => {
+  if (playing) { stopPlay(); return; }
+  if (state.h <= 2) setH(60);
+  $("play").textContent = "❚❚ Pause";
+  let last = performance.now();
+  const step = t => {
+    const dt = Math.min(0.1, (t - last) / 1000); last = t;
+    state.h = Math.max(HMIN, state.h - (state.h > 15 ? 8 : 2.5) * dt); $("h").value = state.h; render();
+    if (state.h > HMIN) playing = requestAnimationFrame(step); else stopPlay();
+  };
+  playing = requestAnimationFrame(step);
+});
+$("cloudBtn").addEventListener("click", () => {
+  state.cloud = !state.cloud;
+  $("cloudBtn").textContent = "Cloud: " + (state.cloud ? "on" : "off");
+  $("cloudBtn").classList.toggle("on", state.cloud);
+  $("cloudCtl").style.display = state.cloud ? "block" : "none"; schedule();
+});
+$("dz").addEventListener("input", ev => { state.dz = parseFloat(ev.target.value); schedule(); });
+$("how").addEventListener("toggle", schedule);
+window.addEventListener("resize", () => { paintCache = null; schedule(); });
+buildChecks();
+render();
+window.RS = { K, CHECKS, airMass, sigmaR, cloudProps, state, render, setH, path };
+</script>
+</body>
+</html>

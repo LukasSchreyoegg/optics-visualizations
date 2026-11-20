@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How do polarisers filter light? · Polarisation</title>
+<style>
+  :root { --bg: #0b0b0c; --panel: #121214; --line: #232327; --text: #d6d6d6; --dim: #9a9a9a; --track: #4a4a4a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 26px 24px 10px; }
+  h1 { font-size: 22px; font-weight: 500; color: #fff; margin: 0; }
+  .say { color: var(--dim); font-size: 14px; margin: 4px 0 14px; min-height: 42px; }
+  canvas { display: block; width: 100%; }
+  #scene { border-radius: 14px; cursor: grab; touch-action: none; }
+  #scene.drag { cursor: grabbing; }
+  .hint { color: var(--dim); font-size: 12px; }
+  .filters { display: grid; grid-template-columns: repeat(3, 25%); margin: 6px 0 0 14.1%; }
+  .filters .f { padding: 0 14px; }
+  .filters .ft { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 13px; }
+  .filters .ft span:last-child { font-variant-numeric: tabular-nums; }
+  @media (max-width: 720px) { .filters { grid-template-columns: 1fr; margin-left: 0; gap: 8px; } .filters .f { padding: 0; } }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; background: transparent; margin: 8px 0 4px; }
+  input[type=range]:focus { outline: none; }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: var(--track); border-radius: 2px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; margin-top: -6px; box-shadow: none; }
+  input[type=range]::-moz-range-track { height: 2px; background: var(--track); border-radius: 2px; }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: none; box-shadow: none; }
+  input[type=range]:disabled { opacity: 0.3; }
+  .row { display: grid; grid-template-columns: 1.3fr 1fr; gap: 28px; margin-top: 20px; align-items: start; }
+  @media (max-width: 720px) { .row { grid-template-columns: 1fr; gap: 16px; } }
+  .lab { color: var(--dim); font-size: 12.5px; margin-bottom: 6px; }
+  .pill { display: inline-block; background: transparent; color: var(--text); border: 1px solid var(--track); border-radius: 999px; padding: 4px 12px; font: inherit; font-size: 13px; cursor: pointer; margin: 0 4px 6px 0; }
+  .pill:hover { background: #fff; color: #000; }
+  .pill.on { border-color: #e6e6e6; color: #fff; }
+  .pill.on:hover { color: #000; }
+  .pill.sm { font-size: 12px; padding: 2px 10px; margin: 0; }
+  .val { font-size: 12.5px; margin-top: 2px; }
+  .val b { color: #fff; font-weight: 400; }
+  .more { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 22px; }
+  details { flex: 0 0 auto; }
+  details[open] { flex-basis: 100%; }
+  details > summary { list-style: none; display: inline-block; border: 1px solid #2a2a2e; color: var(--dim); border-radius: 999px; padding: 5px 14px; font-size: 13px; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary:hover, details[open] > summary { border-color: #e6e6e6; color: #fff; }
+  .panel { background: var(--panel); border-radius: 14px; padding: 14px 18px; margin-top: 10px; }
+  .panel p { font-size: 13.5px; }
+  .eq { font-family: "Times New Roman", Times, serif; font-size: 16px; color: #fff; text-align: center; margin: 8px 0; }
+  .eq i, .panel i { font-family: "Times New Roman", Times, serif; font-size: 1.08em; }
+  .crow { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .crow:last-child { border-bottom: none; }
+  .crow .v { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .crow .v b { color: #fff; font-weight: 400; }
+  footer { color: #7a7a7a; font-size: 12px; max-width: 1100px; margin: 0 auto; padding: 18px 24px 30px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>How do polarisers filter light?</h1>
+  <div class="say" id="say"></div>
+  <canvas id="scene" height="340"></canvas>
+  <div class="filters" id="filters"></div>
+  <div class="hint" style="margin-top:12px">Turn a filter with its slider or by dragging it. The round windows show how the electric field oscillates, seen looking towards the lamp; a star means unpolarised light. The thickness of the beam is proportional to its intensity.</div>
+
+  <div class="row">
+    <div>
+      <div class="lab" id="chartLab">Light at the screen vs. the angle of filter 3</div>
+      <canvas id="chart" height="120"></canvas>
+      <div class="val">I = <b id="iv"></b> of I₀</div>
+    </div>
+    <div>
+      <div class="lab">Try</div>
+      <div><button class="pill" data-pre="malus">Malus</button><button class="pill" data-pre="crossed">crossed</button><button class="pill on" data-pre="three">three polarisers</button></div>
+      <button class="pill" id="spin" style="margin-top:4px">▶ Rotate filter 3</button>
+    </div>
+  </div>
+
+  <div class="more">
+    <details id="how">
+      <summary>How it works</summary>
+      <div class="panel">
+        <p><b>The idea.</b> Light is a transverse wave: its electric field oscillates perpendicular to the beam. In linearly polarised light it always oscillates along one line. A polariser has a transmission axis; it lets through only the part of the field that points along this axis and absorbs the rest.</p>
+        <p><b>Malus' law.</b> If the light oscillates at an angle Δ to the axis, only the projection of the field gets through, and the intensity goes with the square of the field:</p>
+        <div class="eq"><i>E</i>′ = <i>E</i> cos Δ &nbsp; ⇒ &nbsp; <i>I</i>′ = <i>I</i> cos<sup>2</sup>Δ</div>
+        <p>Behind the polariser the light oscillates along its axis, so the next polariser measures Δ from there. For a chain of polarisers this gives a product of cos<sup>2</sup> terms.</p>
+        <p><b>Unpolarised light</b> from the lamp oscillates in all directions at random. The first polariser lets through the average of cos<sup>2</sup> over all directions, which is exactly one half:</p>
+        <div class="eq">⟨cos<sup>2</sup>Δ⟩ = 1/2 &nbsp; ⇒ &nbsp; <i>I</i><sub>1</sub> = <i>I</i><sub>0</sub>/2, whatever its angle.</div>
+        <p><b>Three polarisers.</b> Two crossed polarisers (Δ = 90°) block everything. Put a third one in between at 45° and light gets through again: <i>I</i> = <i>I</i><sub>0</sub>/2 · cos<sup>2</sup>45° · cos<sup>2</sup>45° = <i>I</i><sub>0</sub>/8. The middle polariser does not add light; it projects the field onto a new direction, from which the last one can take a part.</p>
+        <p><b>How it is computed.</b> The field is a two-dimensional vector, and each polariser projects it onto its axis, <i>E</i>′ = (<i>E</i> · <i>u</i>) <i>u</i>. The check compares these projections with the closed formula of cos<sup>2</sup> terms.</p>
+        <p><b>Not included.</b> Real polarisers leak a little (finite extinction ratio, Skript 3.2.5) and absorb some light even along their axis; reflections at their surfaces.</p>
+      </div>
+    </details>
+    <details id="chkBox">
+      <summary id="chkSum">Check: numerical vs. analytical</summary>
+      <div class="panel" id="chk"></div>
+    </details>
+  </div>
+</div>
+<footer>Built with Claude (Anthropic) as coding assistant. Idea and physics checks: Lukas Schreyögg.</footer>
+
+<script>
+"use strict";
+// ======================================================================
+// Physics: the field as a 2D vector, each polariser projects it onto its axis
+// ======================================================================
+const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+const state = { f: [{ on: true, ang: 0 }, { on: true, ang: 45 }, { on: true, ang: 90 }] };
+// light behind the lamp and behind each filter: { unpol, I, E }; lamp intensity I0 = 1
+function chain(filters) {
+  let st = { unpol: true, I: 1, E: null };
+  const out = [st];
+  for (const f of filters) {
+    if (f.on) {
+      const u = [Math.cos(rad(f.ang)), Math.sin(rad(f.ang))];
+      if (st.unpol) { const a = Math.sqrt(st.I * avgCos2()); st = { unpol: false, I: a * a, E: [a * u[0], a * u[1]] }; }
+      else { const p = st.E[0] * u[0] + st.E[1] * u[1]; st = { unpol: false, I: p * p, E: [p * u[0], p * u[1]] }; }
+    }
+    out.push(st);
+  }
+  return out;
+}
+// average of cos² over all directions of unpolarised light, numerically (midpoint rule)
+let AVG = null;
+function avgCos2() { if (AVG === null) { let s = 0; const n = 3600; for (let k = 0; k < n; k++) s += Math.cos(Math.PI * (k + 0.5) / n) ** 2; AVG = s / n; } return AVG; }
+// closed formula: I = I0/2 · Π cos²(Δ) between consecutive active polarisers
+function formula(filters) {
+  const on = filters.filter(f => f.on); if (!on.length) return 1;
+  let v = 0.5; for (let k = 1; k < on.length; k++) v *= Math.cos(rad(on[k].ang - on[k - 1].ang)) ** 2;
+  return v;
+}
+const F = (ang, on = true) => ({ on, ang });
+const lastOn = fs => { for (let k = fs.length - 1; k >= 0; k--) if (fs[k].on) return k; return -1; };
+
+// ======================================================================
+// Checks
+// ======================================================================
+function checks() {
+  const end = fs => chain(fs)[3].I, rows = [];
+  rows.push({ name: "Unpolarised light: average of cos² over all directions", num: avgCos2(), ana: 0.5, ref: "1/2" });
+  rows.push({ name: "Malus: filters at 0° and 60°", num: end([F(0), F(0, false), F(60)]), ana: 0.5 * Math.cos(rad(60)) ** 2, ref: "I₀/2 · cos²60°" });
+  rows.push({ name: "Crossed: filters at 0° and 90°", num: end([F(0), F(0, false), F(90)]), ana: 0, ref: "0" });
+  rows.push({ name: "Three polarisers 0°, 45°, 90°", num: end([F(0), F(45), F(90)]), ana: 1 / 8, ref: "I₀/8" });
+  let dev = 0, gain = -1;
+  for (let k = 0; k < 3000; k++) {
+    const fs = [0, 1, 2].map(() => F(180 * Math.random(), Math.random() < 0.8)), c = chain(fs);
+    dev = Math.max(dev, Math.abs(c[3].I - formula(fs)));
+    for (let j = 1; j < 4; j++) gain = Math.max(gain, c[j].I - c[j - 1].I);
+  }
+  rows.push({ name: "3000 random settings: largest difference to the cos² formula", num: dev, ana: 0, ref: "exact" });
+  rows.push({ name: "3000 random settings: largest gain of intensity", num: Math.max(0, gain), ana: 0, ref: "never more out than in" });
+  rows.forEach(r => r.pass = Math.abs(r.num - r.ana) < 1e-9);
+  return rows;
+}
+function buildChecks() {
+  const rows = checks();
+  $("chkSum").textContent = "Check: numerical vs. analytical " + (rows.every(r => r.pass) ? "✓" : "✗");
+  $("chk").innerHTML = rows.map(r => `<div class="crow"><span>${r.name}</span><span class="v"><b>${r.num.toFixed(6)}</b> <span class="hint">vs ${r.ana.toFixed(6)} (${r.ref})</span> ${r.pass ? "✓" : "✗"}</span></div>`).join("") +
+    `<div class="hint" style="margin-top:8px">Numerically the field vector is projected filter by filter; analytically I = I₀/2 · Π cos²Δ. Intensities are fractions of the lamp's intensity I₀.</div>`;
+}
+
+// ======================================================================
+// Drawing
+// ======================================================================
+const $ = id => document.getElementById(id);
+function setupCanvas(cv, hCss) {
+  const dpr = window.devicePixelRatio || 1;
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");   // setting cv.height overwrites the attribute
+  const w = cv.clientWidth, h = hCss || +cv.dataset.h;
+  cv.style.height = h + "px";
+  const W = Math.round(w * dpr), Hp = Math.round(h * dpr);
+  if (cv.width !== W || cv.height !== Hp) { cv.width = W; cv.height = Hp; }    // re-allocate only when the size changes
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+const pct = v => (100 * v).toFixed(v >= 0.0995 ? 1 : 2) + " %";
+const gam = v => v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+let G = null;
+
+function geometry(w) {
+  const H = Math.round(Math.max(230, 0.3 * w));
+  const re = Math.max(20, 0.05 * w), rw = Math.max(16, 0.039 * w), by = 0.66 * H, wy = Math.max(rw + 10, 0.27 * H);
+  return { w, H, by, wy, re, rw, short: w < 620, lamp: 0.0625 * w, fx: [0.266 * w, 0.516 * w, 0.766 * w], screen: 0.944 * w,
+           win: [0.156 * w, 0.391 * w, 0.641 * w, 0.856 * w], k: Math.max(0.6, Math.min(1.6, w / 640)) };
+}
+
+function render(t) {
+  const c = chain(state.f);
+  $("iv").textContent = pct(c[3].I);
+  $("say").textContent = sentence(c);
+  state.f.forEach((f, i) => { $("v" + i).textContent = f.on ? f.ang.toFixed(0) + "°" : "off"; });
+  drawScene(c, t || performance.now());
+  drawChart(c);
+}
+
+function sentence(c) {
+  const fs = state.f, on = fs.map((f, i) => ({ ...f, i })).filter(f => f.on), end = c[3].I;
+  const d = (x, y) => { const v = Math.abs(x - y) % 180; return Math.min(v, 180 - v); };
+  if (!on.length) return "All filters are off: the light stays unpolarised and reaches the screen completely.";
+  if (on.length === 1) return `One polariser keeps half of the unpolarised light, whatever its angle: I = I₀/2 = ${pct(end)}.`;
+  const terms = on.slice(1).map((f, k) => `cos²${d(f.ang, on[k].ang).toFixed(0)}°`).join(" · ");
+  if (on.length === 3 && d(on[0].ang, on[2].ang) === 90 && end > 1e-4)
+    return `Three polarisers: filters 1 and 3 are crossed and alone would block everything. Filter 2 projects the field onto a new direction, so light gets through again: I = I₀/2 · ${terms} = ${pct(end)}.`;
+  if (end < 1e-6) {
+    for (let k = 1; k < on.length; k++) if (d(on[k].ang, on[k - 1].ang) === 90) return `Crossed: filter ${on[k].i + 1} is at 90° to filter ${on[k - 1].i + 1}, so it blocks exactly the light that reaches it. Nothing gets through.`;
+  }
+  return `Malus: each polariser keeps the part of the field along its axis, E·cos Δ, so the intensity drops by cos²Δ. Here I = I₀/2 · ${terms} = ${pct(end)}.`;
+}
+
+function drawScene(c, t) {
+  const cv = $("scene"), g = geometry(cv.clientWidth); G = g;
+  const { ctx, w, h } = setupCanvas(cv, g.H), k = g.k;
+  ctx.fillStyle = "#0b0b0c"; ctx.fillRect(0, 0, w, h);
+  const W0 = 6 * Math.min(1.4, k), xs = [g.lamp, ...g.fx, g.screen];
+  ctx.lineCap = "round";
+  for (let i = 0; i < 4; i++) {
+    const v = c[i].I; if (v < 1e-5) continue;
+    ctx.strokeStyle = `rgba(255,255,255,${(0.35 + 0.65 * Math.sqrt(v)).toFixed(3)})`; ctx.lineWidth = Math.max(1.4, W0 * Math.sqrt(v));
+    ctx.beginPath(); ctx.moveTo(xs[i], g.by); ctx.lineTo(xs[i + 1] - (i === 3 ? g.rw : 0), g.by); ctx.stroke();
+  }
+  ctx.save(); ctx.setLineDash([2, 4]); ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1;
+  g.win.forEach(x => { ctx.beginPath(); ctx.moveTo(x, g.wy + g.rw + 2); ctx.lineTo(x, g.by - 4); ctx.stroke(); }); ctx.restore();
+  g.win.forEach((x, i) => {
+    ctx.beginPath(); ctx.arc(x, g.wy, g.rw, 0, 2 * Math.PI); ctx.fillStyle = "#121214"; ctx.fill(); ctx.strokeStyle = "#3a3a3e"; ctx.lineWidth = 1.2; ctx.stroke();
+    if (c[i].unpol) star(ctx, x, g.wy, g.rw * 0.72 * Math.sqrt(c[i].I));
+    else field(ctx, x, g.wy, g.rw * 0.72 / Math.sqrt(0.5), c[i].E, t, k);
+  });
+  state.f.forEach((f, i) => disk(ctx, g, g.fx[i], f, i + 1));
+  ctx.beginPath(); ctx.arc(g.lamp, g.by, Math.max(6, 0.015 * w), 0, 2 * Math.PI); ctx.fillStyle = "#fff"; ctx.fill();
+  const v = Math.round(255 * gam(Math.min(1, c[3].I)));
+  ctx.beginPath(); ctx.arc(g.screen, g.by, g.rw * 0.8, 0, 2 * Math.PI); ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fill(); ctx.strokeStyle = "#3a3a3e"; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = "#9a9a9a"; ctx.font = `${Math.round(Math.max(11, 12 * Math.min(1.2, k)))}px -apple-system, system-ui, sans-serif`; ctx.textAlign = "center";
+  ctx.fillText(pct(c[3].I), g.screen, g.by + g.rw * 0.8 + 18); ctx.textAlign = "left";
+}
+function star(ctx, x, y, r) {
+  ctx.strokeStyle = "rgba(255,255,255,0.45)"; ctx.lineWidth = 1.6;
+  for (let a = 0; a < 180; a += 45) { const ca = Math.cos(rad(a)) * r, sa = Math.sin(rad(a)) * r; ctx.beginPath(); ctx.moveTo(x - ca, y + sa); ctx.lineTo(x + ca, y - sa); ctx.stroke(); }
+}
+// linear light: the field oscillates along a line; the dot is E(t) = E cos ωt
+function field(ctx, x, y, scale, E, t, k) {
+  const ex = E[0] * scale, ey = E[1] * scale;
+  if (Math.hypot(ex, ey) < 0.5) { ctx.beginPath(); ctx.arc(x, y, 2, 0, 2 * Math.PI); ctx.fillStyle = "#5a5a5e"; ctx.fill(); return; }
+  ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2 * Math.min(1.2, k); ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x - ex, y + ey); ctx.lineTo(x + ex, y - ey); ctx.stroke();
+  const cw = Math.cos(2 * Math.PI * t / 1600);
+  ctx.beginPath(); ctx.arc(x + ex * cw, y - ey * cw, 3 * Math.min(1.2, k), 0, 2 * Math.PI); ctx.fillStyle = "#fff"; ctx.fill();
+}
+// polariser seen face-on: lines along the transmission axis, knob to turn it; off = dashed outline
+function disk(ctx, g, x, f, n) {
+  const r = g.re, y = g.by, ca = Math.cos(rad(f.ang)), sa = Math.sin(rad(f.ang));
+  if (!f.on) { ctx.save(); ctx.setLineDash([3, 4]); ctx.strokeStyle = "#3a3a3e"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.stroke(); ctx.restore(); return; }
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI); ctx.fillStyle = "#17171b"; ctx.fill(); ctx.strokeStyle = "#3a3a3e"; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.save(); ctx.beginPath(); ctx.arc(x, y, r - 1, 0, 2 * Math.PI); ctx.clip();
+  ctx.strokeStyle = "#5a5a5e"; ctx.lineWidth = 1.2;
+  for (let o = -2; o <= 2; o++) { const ox = -sa * o * r * 0.25, oy = -ca * o * r * 0.25; ctx.beginPath(); ctx.moveTo(x + ox - ca * r, y + oy + sa * r); ctx.lineTo(x + ox + ca * r, y + oy - sa * r); ctx.stroke(); }
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(x + ca * r, y - sa * r, Math.max(4, 5.5 * Math.min(1.3, g.k)), 0, 2 * Math.PI); ctx.fillStyle = "#fff"; ctx.fill();
+}
+
+function drawChart(c) {
+  const { ctx, w, h } = setupCanvas($("chart"));
+  ctx.clearRect(0, 0, w, h);
+  const L = 4, Rr = w - 4, T = 6, B = h - 20, j = lastOn(state.f);
+  const X = b => L + b / 180 * (Rr - L), Y = v => B - Math.min(1, v / 0.5) * (B - T);
+  $("chartLab").textContent = j < 0 ? "Light at the screen (all filters off)" : `Light at the screen vs. the angle of filter ${j + 1}`;
+  $("spin").textContent = spinning ? "❚❚ Pause" : `▶ Rotate filter ${Math.max(1, j + 1)}`;
+  ctx.strokeStyle = "#3a3a3e"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, B); ctx.lineTo(Rr, B); ctx.stroke();
+  if (j >= 0) {
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.beginPath();
+    for (let k = 0; k <= 180; k++) { const fs = state.f.map((f, i) => i === j ? { ...f, ang: k } : f), v = chain(fs)[3].I; k ? ctx.lineTo(X(k), Y(v)) : ctx.moveTo(X(k), Y(v)); }
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(X(state.f[j].ang % 180), Y(c[3].I), 3.5, 0, 2 * Math.PI); ctx.fillStyle = "#fff"; ctx.fill();
+  }
+  ctx.fillStyle = "#9a9a9a"; ctx.font = "11px -apple-system, system-ui, sans-serif"; ctx.fillText("0°", L, h - 5);
+  ctx.textAlign = "center"; ctx.fillText("90°", X(90), h - 5); ctx.textAlign = "right"; ctx.fillText("180°", Rr, h - 5); ctx.textAlign = "left";
+  ctx.fillText("I₀/2", L + 2, T + 10);
+}
+
+// ======================================================================
+// Controls and interaction
+// ======================================================================
+function buildFilters() {
+  $("filters").innerHTML = state.f.map((f, i) => `<div class="f">
+    <div class="ft"><span>Filter ${i + 1} <button class="pill sm ${f.on ? "on" : ""}" data-tog="${i}">${f.on ? "on" : "off"}</button></span><span id="v${i}"></span></div>
+    <input type="range" min="0" max="180" step="1" value="${f.ang}" data-sl="${i}" aria-label="Angle of filter ${i + 1}" ${f.on ? "" : "disabled"}>
+  </div>`).join("");
+  document.querySelectorAll("[data-tog]").forEach(b => b.addEventListener("click", () => { const f = state.f[+b.dataset.tog]; f.on = !f.on; clearPreset(); buildFilters(); }));
+  document.querySelectorAll("[data-sl]").forEach(s => s.addEventListener("input", () => { stopSpin(); state.f[+s.dataset.sl].ang = +s.value; clearPreset(); }));
+}
+const syncSliders = () => document.querySelectorAll("[data-sl]").forEach(s => { const a = Math.round(state.f[+s.dataset.sl].ang); if (+s.value !== a) s.value = a; });
+const clearPreset = () => document.querySelectorAll("[data-pre]").forEach(x => x.classList.remove("on"));
+
+let spinning = false, last = 0;
+function loop(t) {
+  if (spinning) { const j = lastOn(state.f); if (j >= 0) { const dt = Math.min(0.1, (t - last) / 1000); state.f[j].ang = (state.f[j].ang + 30 * dt) % 180; } }
+  last = t;
+  render(t); syncSliders();
+  requestAnimationFrame(loop);
+}
+const scene = $("scene");
+let active = -1;
+function pick(ev) {
+  const r = scene.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+  let best = -1, bd = 1e9;
+  G.fx.forEach((cx, i) => { if (!state.f[i].on) return; const d = Math.hypot(x - cx, y - G.by); if (d < bd) { bd = d; best = i; } });
+  return bd < 1.9 * G.re ? best : -1;
+}
+function turn(ev) {
+  const r = scene.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+  let ang = (deg(Math.atan2(G.by - y, x - G.fx[active])) + 360) % 180;
+  for (const snap of [0, 45, 90, 135, 180]) if (Math.abs(ang - snap) < 1.5) ang = snap % 180;
+  state.f[active].ang = Math.round(ang); clearPreset();
+}
+scene.addEventListener("pointerdown", ev => { if (!G) return; active = pick(ev); if (active < 0) return; stopSpin(); scene.classList.add("drag"); scene.setPointerCapture(ev.pointerId); turn(ev); });
+scene.addEventListener("pointermove", ev => { if (active >= 0) turn(ev); });
+const endDrag = () => { active = -1; scene.classList.remove("drag"); };
+scene.addEventListener("pointerup", endDrag); scene.addEventListener("pointercancel", endDrag);
+
+function stopSpin() { if (spinning) { spinning = false; $("spin").classList.remove("on"); const j = lastOn(state.f); if (j >= 0) state.f[j].ang = Math.round(state.f[j].ang); } }
+$("spin").addEventListener("click", () => { if (spinning) stopSpin(); else { spinning = true; $("spin").classList.add("on"); } });
+const PRESETS = { malus: [F(0), F(45, false), F(60)], crossed: [F(0), F(45, false), F(90)], three: [F(0), F(45), F(90)] };
+document.querySelectorAll("[data-pre]").forEach(b => b.addEventListener("click", () => {
+  stopSpin(); state.f = PRESETS[b.dataset.pre].map(f => ({ ...f })); buildFilters();
+  document.querySelectorAll("[data-pre]").forEach(x => x.classList.toggle("on", x === b));
+}));
+buildFilters();
+buildChecks();
+requestAnimationFrame(loop);
+window.PZ = { state, chain, formula, checks, render, buildFilters };
+</script>
+</body>
+</html>

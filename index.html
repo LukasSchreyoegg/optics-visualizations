@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Optics visualizations · Lukas Schreyögg</title>
+<style>
+  :root { --bg: #0b0b0c; --panel: #121214; --line: #232327; --text: #d6d6d6; --dim: #9a9a9a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 34px 24px 10px; }
+  h1 { font-size: 26px; font-weight: 500; color: #fff; margin: 0; }
+  .by { color: var(--dim); margin: 4px 0 14px; }
+  .intro { max-width: 720px; font-size: 15px; margin-bottom: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card { display: block; background: var(--panel); border-radius: 16px; padding: 10px 10px 14px; color: inherit; text-decoration: none; border: 1px solid transparent; }
+  a.card:hover { border-color: #e6e6e6; }
+  .thumb { width: 100%; aspect-ratio: 3 / 1; border-radius: 12px; background: #0b0b0c; object-fit: cover; display: block; }
+  .card .t { color: var(--dim); font-size: 12px; margin: 12px 4px 0; }
+  .card .q { color: #fff; font-size: 15px; margin: 2px 4px 2px; }
+  .card .d { color: var(--dim); font-size: 13px; margin: 0 4px; }
+  .tag { display: inline-block; border: 1px solid #3a3a3e; color: var(--dim); border-radius: 999px; padding: 2px 10px; font-size: 12px; margin: 10px 4px 0; }
+  a.card .tag { border-color: #e6e6e6; color: #fff; }
+  footer { color: #7a7a7a; font-size: 12px; max-width: 1100px; margin: 0 auto; padding: 30px 24px 34px; }
+  footer a { color: #9a9a9a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Optics visualizations</h1>
+  <div class="by">Lukas Schreyögg · Physics B.Sc., TU Munich</div>
+  <p class="intro">Interactive pages for the optics part of Experimental Physics 3 at TU Munich. Each page shows one effect as a scene you can move yourself, with the model and its assumptions and a check of the numerics against an exact result.</p>
+
+  <div class="grid">
+    <a class="card" href="rayleigh-scattering/">
+      <img class="thumb" src="rayleigh-scattering/preview.png" alt="The setting sun's light crossing the atmosphere to a person on the curved Earth">
+      <div class="t">Rayleigh scattering</div>
+      <div class="q">Why is the sky blue and the setting sun red?</div>
+      <div class="d">Scattering ∝ λ<sup>−4</sup> and the path length through the air.</div>
+      <span class="tag">Open</span>
+    </a>
+    <a class="card" href="fresnel-brewster/">
+      <img class="thumb" src="fresnel-brewster/preview.png" alt="Light hitting glass at the Brewster angle: the reflected ray carries only TE light">
+      <div class="t">Fresnel equations</div>
+      <div class="q">Why does glass reflect, and when does it stop?</div>
+      <div class="d">TE and TM light, Brewster angle and total internal reflection.</div>
+      <span class="tag">Open</span>
+    </a>
+    <a class="card" href="polarization/">
+      <img class="thumb" src="polarization/preview.png" alt="Unpolarised light passing three polarisers at 0, 45 and 90 degrees">
+      <div class="t">Polarisation</div>
+      <div class="q">How do polarisers filter light?</div>
+      <div class="d">Malus' law and why a third polariser between two crossed ones lets light through.</div>
+      <span class="tag">Open</span>
+    </a>
+  </div>
+</div>
+<footer>Built with Claude (Anthropic) as coding assistant. Idea and physics checks: Lukas Schreyögg. · <a href="https://github.com/LukasSchreyoegg/optics-visualizations">Source on GitHub</a></footer>
+</body>
+</html>
